@@ -197,24 +197,6 @@ export default function AuthPage() {
             >Create Account</TabsTrigger>
           </TabsList>
 
-          {/* Google OAuth button */}
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full h-12 rounded-xl border-border hover:bg-gray-50 font-medium gap-3 mb-4"
-            onClick={handleGoogleLogin}
-            disabled={isAnyLoading}
-          >
-            {googleLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <GoogleIcon />}
-            Continue with Google
-          </Button>
-
-          <div className="relative mb-4">
-            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-border" /></div>
-            <div className="relative flex justify-center"><span className="bg-white px-3 text-xs text-muted-foreground uppercase tracking-widest">Or Email</span></div>
-          </div>
-
-          {/* LOGIN TAB */}
           <TabsContent value="login" className="mt-0">
             <form onSubmit={loginForm.handleSubmit(onLogin)} className="space-y-4">
               <div className="space-y-1.5">
