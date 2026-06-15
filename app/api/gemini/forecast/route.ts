@@ -147,7 +147,11 @@ Return ONLY valid JSON. Base predictions on the data provided and agricultural m
           generationConfig: {
             temperature: 0.3,
             topP: 0.8,
-            maxOutputTokens: 2048,
+            maxOutputTokens: 4096,
+            responseMimeType: "application/json",
+            thinkingConfig: {
+              thinkingBudget: 0,
+            },
           },
         }),
       }
