@@ -100,7 +100,7 @@ export function Navbar() {
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
               <Leaf className="w-4 h-4 text-white" />
             </div>
-            <span className="font-bold text-primary text-lg hidden sm:block">AgriMarket AI</span>
+            <span className="font-bold text-primary text-lg hidden sm:block">AgriMarket</span>
           </Link>
 
           {/* Search bar - desktop */}

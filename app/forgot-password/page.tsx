@@ -38,7 +38,7 @@ export default function ForgotPasswordPage() {
         <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center mx-auto mb-4 shadow-md">
           <Leaf className="w-7 h-7 text-white" />
         </div>
-        <h1 className="text-3xl font-bold text-primary tracking-tight">AgriMarket AI</h1>
+        <h1 className="text-3xl font-bold text-primary tracking-tight">AgriMarket</h1>
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-border/40 w-full max-w-md p-8">

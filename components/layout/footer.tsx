@@ -13,9 +13,9 @@ export function Footer() {
               <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
                 <Leaf className="w-3.5 h-3.5 text-white" />
               </div>
-              <span className="font-bold text-primary text-base">AgriMarket AI</span>
+              <span className="font-bold text-primary text-base">AgriMarket</span>
             </div>
-            <p className="text-xs text-muted-foreground">© {date.getFullYear()} AgriMarket AI. Sustainable Trade for Modern Farmers.</p>
+            <p className="text-xs text-muted-foreground">© {date.getFullYear()} AgriMarket. Sustainable Trade for Modern Farmers.</p>
           </div>
         </div>
       </div>

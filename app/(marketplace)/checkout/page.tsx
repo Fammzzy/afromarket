@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useCart } from '@/contexts/cart-context';
 import { useAuth } from '@/contexts/auth-context';
 import { supabase } from '@/lib/supabase';
+import { sendEmailNotification } from '@/lib/email';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -112,6 +113,27 @@ export default function CheckoutPage() {
 
         if (buyerNotifError) {
           console.error('Failed to notify buyer:', buyerNotifError);
+        }
+
+        // Fetch seller email
+        const { data: sellerData } = await supabase.from('users').select('email').eq('id', sellerId).maybeSingle();
+
+        // Notify seller of new order via email
+        if (sellerData?.email) {
+          await sendEmailNotification(
+            sellerData.email,
+            'New Order Received',
+            `<p>You have a new order of ${sellerItems.length} item(s) totaling ₦${orderTotal.toLocaleString()}. Order ID: #${order.id.slice(0, 8).toUpperCase()}</p>`
+          );
+        }
+
+        // Notify buyer with order confirmation via email
+        if (user.email) {
+          await sendEmailNotification(
+            user.email,
+            'Order Placed Successfully',
+            `<p>Your order #${order.id.slice(0, 8).toUpperCase()} has been placed and is awaiting confirmation from the seller. Total: ₦${orderTotal.toLocaleString()}.</p>`
+          );
         }
       }
 

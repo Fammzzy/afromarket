@@ -63,6 +63,7 @@ export interface Order {
   updated_at: string;
   buyer?: User;
   seller?: User;
+  seller_bank?: BankAccount;
   order_items?: OrderItem[];
 }
 
@@ -119,6 +120,16 @@ export interface SavedProduct {
   product_id: string;
   created_at: string;
   product?: Product;
+}
+
+export interface BankAccount {
+  id: string;
+  user_id: string;
+  account_number: string;
+  account_name: string;
+  bank_name: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export const PRODUCT_CATEGORIES = [

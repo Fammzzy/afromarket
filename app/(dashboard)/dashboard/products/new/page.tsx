@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useAuth } from '@/contexts/auth-context';
@@ -20,6 +20,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
@@ -61,6 +62,50 @@ export default function NewProductPage() {
   const [isDragging, setIsDragging] = useState(false);
   const [analysisStatus, setAnalysisStatus] = useState<'idle' | 'uploading' | 'analyzing' | 'error'>('idle');
   const [analysisErrorMessage, setAnalysisErrorMessage] = useState<string | null>(null);
+
+  const [hasBankAccount, setHasBankAccount] = useState<boolean | null>(null);
+  const [checkingBank, setCheckingBank] = useState(true);
+  const [bankForm, setBankForm] = useState({ account_number: '', account_name: '', bank_name: '' });
+  const [submittingBank, setSubmittingBank] = useState(false);
+
+  useEffect(() => {
+    if (!user) {
+      setCheckingBank(false);
+      return;
+    }
+    const checkBank = async () => {
+      const { data, error } = await supabase
+        .from('bank_accounts')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      
+      setHasBankAccount(!!data);
+      setCheckingBank(false);
+    };
+    checkBank();
+  }, [user]);
+
+  const submitBankAccount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    setSubmittingBank(true);
+    try {
+      const { error } = await supabase.from('bank_accounts').insert({
+        user_id: user.id,
+        account_number: bankForm.account_number,
+        account_name: bankForm.account_name,
+        bank_name: bankForm.bank_name,
+      });
+      if (error) throw error;
+      toast.success('Bank details saved successfully');
+      setHasBankAccount(true);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to save bank details');
+    } finally {
+      setSubmittingBank(false);
+    }
+  };
 
   const { register, handleSubmit, setValue, watch, formState, reset } = useForm<FormData>({
     resolver: zodResolver(schema) as any,
@@ -202,6 +247,14 @@ export default function NewProductPage() {
   };
 
   const inputClass = "h-11 bg-muted/40 border-border/60 rounded-xl focus:bg-white";
+
+  if (checkingBank) {
+    return (
+      <div className="flex justify-center py-32">
+        <Loader2 className="w-7 h-7 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   if (!user) {
     return (
@@ -498,6 +551,56 @@ export default function NewProductPage() {
           </div>
         </form>
       )}
+
+      <Dialog open={hasBankAccount === false}>
+        <DialogContent className="sm:max-w-md [&>button]:hidden" onPointerDownOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
+          <DialogHeader>
+            <DialogTitle>Bank Details Required</DialogTitle>
+            <DialogDescription>
+              Before you can create a product, please provide your bank account details so buyers know where to make payments.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={submitBankAccount} className="space-y-4 py-4">
+            <div className="space-y-1.5">
+              <Label className="text-sm font-medium">Bank Name</Label>
+              <Input
+                required
+                placeholder="e.g. GTBank"
+                value={bankForm.bank_name}
+                onChange={e => setBankForm(prev => ({ ...prev, bank_name: e.target.value }))}
+                className={inputClass}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-sm font-medium">Account Number</Label>
+              <Input
+                required
+                placeholder="0123456789"
+                value={bankForm.account_number}
+                onChange={e => setBankForm(prev => ({ ...prev, account_number: e.target.value }))}
+                className={inputClass}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-sm font-medium">Account Name</Label>
+              <Input
+                required
+                placeholder="John Doe"
+                value={bankForm.account_name}
+                onChange={e => setBankForm(prev => ({ ...prev, account_name: e.target.value }))}
+                className={inputClass}
+              />
+            </div>
+            <Button
+              type="submit"
+              disabled={submittingBank}
+              className="w-full h-11 rounded-xl bg-primary mt-2"
+            >
+              {submittingBank ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save Bank Details'}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

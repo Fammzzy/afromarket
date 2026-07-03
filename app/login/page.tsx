@@ -160,7 +160,7 @@ export default function AuthPage() {
           phone_number: data.phone,
         });
       }
-      toast.success('Account created! Welcome to AgriMarket AI.');
+      toast.success('Account created! Welcome to AgriMarket.');
       router.push('/marketplace');
     } catch (err: any) {
       toast.error(err?.message || 'Something went wrong during registration');
@@ -176,7 +176,7 @@ export default function AuthPage() {
         <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center mx-auto mb-4 shadow-md">
           <Leaf className="w-7 h-7 text-white" />
         </div>
-        <h1 className="text-3xl font-bold text-primary tracking-tight">AgriMarket AI</h1>
+        <h1 className="text-3xl font-bold text-primary tracking-tight">AgriMarket</h1>
         <p className="text-muted-foreground mt-1 text-sm leading-relaxed">
           Smarter Farming, Brighter Future.<br />Join 12,000+ farmers worldwide.
         </p>
@@ -345,11 +345,11 @@ export default function AuthPage() {
         </Tabs>
 
         <p className="text-center text-xs text-muted-foreground mt-6 leading-relaxed">
-          By joining, you agree to receive automated communications from AgriMarket AI. Standard rates apply.
+          By joining, you agree to receive automated communications from AgriMarket. Standard rates apply.
         </p>
       </div>
 
-      <p className="mt-8 text-xs text-muted-foreground">© 2024 AgriMarket AI. Secure & Verified Platform.</p>
+      <p className="mt-8 text-xs text-muted-foreground">© 2024 AgriMarket. Secure & Verified Platform.</p>
     </div>
   );
 }

@@ -6,10 +6,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/auth-context';
-import { Order, OrderStatus, ORDER_STATUS_LABELS, ORDER_STATUS_COLORS } from '@/types';
+import { sendEmailNotification } from '@/lib/email';
+import { Order, OrderStatus, ORDER_STATUS_LABELS, ORDER_STATUS_COLORS, BankAccount } from '@/types';
 import {
   Package, MapPin, Phone, ArrowLeft, CheckCircle2, Circle,
-  Clock, Truck, Home, XCircle, Loader2, Leaf
+  Clock, Truck, Home, XCircle, Loader2, Leaf, CreditCard
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -61,6 +62,15 @@ export default function OrderDetailPage() {
           const userMap = new Map(userData?.map(u => [u.id, u]) ?? []);
           orderData.seller = userMap.get(orderData.seller_id) || null;
           orderData.buyer = userMap.get(orderData.buyer_id) || null;
+          
+          if (orderData.seller_id) {
+            const { data: bankData } = await supabase
+              .from('bank_accounts')
+              .select('*')
+              .eq('user_id', orderData.seller_id)
+              .maybeSingle();
+            orderData.seller_bank = bankData;
+          }
         }
 
         setOrder(orderData as Order);
@@ -90,6 +100,15 @@ export default function OrderDetailPage() {
 
     if (notifError) {
       console.error('Failed to notify buyer:', notifError);
+    }
+
+    // Send email to buyer
+    if (order.buyer?.email) {
+      await sendEmailNotification(
+        order.buyer.email,
+        'Order Status Updated',
+        `<p>Your order #${order.id.slice(0, 8).toUpperCase()} status has been updated to <strong>${ORDER_STATUS_LABELS[newStatus]}</strong>.</p>`
+      );
     }
 
     setOrder(prev => prev ? { ...prev, order_status: newStatus } : null);
@@ -271,6 +290,32 @@ export default function OrderDetailPage() {
               >
                 Mark as Paid
               </Button>
+            )}
+
+            {/* Show Seller Bank Details for Buyer */}
+            {!isSeller && order.seller_bank && order.payment_status !== 'paid_on_delivery' && (
+              <div className="mt-6 pt-4 border-t border-border">
+                <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                  <CreditCard className="w-4 h-4 text-primary" /> Pay via Transfer
+                </h3>
+                <div className="bg-muted/50 rounded-xl p-3 space-y-2 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Bank Name</span>
+                    <span className="font-medium text-foreground">{order.seller_bank.bank_name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Account Number</span>
+                    <span className="font-medium text-foreground">{order.seller_bank.account_number}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Account Name</span>
+                    <span className="font-medium text-foreground">{order.seller_bank.account_name}</span>
+                  </div>
+                </div>
+                <p className="text-[11px] text-muted-foreground mt-2 text-center">
+                  Make your transfer to the account above and wait for the seller to confirm payment.
+                </p>
+              </div>
             )}
           </div>
         </div>
